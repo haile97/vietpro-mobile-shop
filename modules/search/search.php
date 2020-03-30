@@ -1,5 +1,10 @@
 <?php
-$keyword = $_POST["keyword"];
+if(isset($_POST['keyword'])){
+	$keyword = $_POST['keyword'];
+}
+else{
+	$keyword = $_GET['keyword'];
+}
 $arr_keyword = explode(" ", $keyword);
 $keyword_end = "%" . implode("%", $arr_keyword) . "%";
 
@@ -16,31 +21,39 @@ $query = mysqli_query($connect, $sql);
 $total = mysqli_num_rows($query);
 $total_row = mysqli_num_rows(mysqli_query($connect, "SELECT * FROM product WHERE prd_name LIKE '$keyword_end'"));
 $total_page = ceil($total_row/$row_per_page);
-$list_page = '';
+$list_pages = '';
 
 // nut pre
-$pre_page = $page - 1;
-if($pre_page <= 0 ){
-    $pre_page = 1;
+$page_prev = $page - 1;
+if($page == 1){
+	$disabled_prev = ' disabled';
 }
-$list_page = '<li class="page-item"><a class="page-link" href="index.php?page_layout=search&keyword='.$keyword_end.'&page='.$pre_page.'">Trang trước</a></li>';
-
-// tinh toan so trang
-for($i = 1; $i <= $total_page; $i++){
-    if($i == $page){
-        $active = 'active';
-    }else{
-        $active = '';
-    }
-$list_page= '<li class="page-item '.$active.'"><a class="page-link" href="index.php?page_layout=search&keyword='.$keyword_end.'&page='.$i.'">'.$i.'</a></li>';
+else{
+	$disabled_prev = '';
 }
 
-// nut next
-$next_page = $page + 1;
-if($next_page > $total_page){
-    $next_page = $total_page;
+$list_pages .= '<li class="page-item'.$disabled_prev.'"><a class="page-link" href="index.php?page_layout=search&keyword='.$keyword_end.'&page='.$page_prev.'">Trang trước</a></li>';
+for($i = 1; $i<=$total_page; $i++){
+	
+	if($i == $page){
+		$active = ' active';
+	}
+	else{
+		$active = '';
+	}
+	
+	$list_pages .= '<li class="page-item'.$active.'"><a class="page-link" href="index.php?page_layout=search&keyword='.$keyword_end.'&page='.$i.'">'.$i.'</a></li>';
 }
-$list_page = '<li class="page-item"><a class="page-link" href="index.php?page_layout=search&keyword='.$keyword_end.'&page='.$next_page.'">Trang sau</a></li>';
+$page_next = $page + 1;
+
+if($page == $total_page){
+	$disabled_next = ' disabled';
+}
+else{
+	$disabled_next = '';
+}
+
+$list_pages .= '<li class="page-item'.$disabled_next.'"><a class="page-link" href="index.php?page_layout=search&keyword='.$keyword_end.'&page='.$page_next.'">Trang sau</a></li>';
 
 
 
@@ -79,6 +92,6 @@ $list_page = '<li class="page-item"><a class="page-link" href="index.php?page_la
 
 <div id="pagination">
     <ul class="pagination">
-        <?php echo $list_page;  ?>
+        <?php echo $list_pages;  ?>
     </ul>
 </div>
